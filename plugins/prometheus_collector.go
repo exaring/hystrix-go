@@ -1,7 +1,7 @@
 package plugins
 
 import (
-	"github.com/afex/hystrix-go/hystrix/metric_collector"
+	"github.com/exaring/hystrix-go/hystrix/metric_collector"
 	"github.com/prometheus/client_golang/prometheus"
 )
 
@@ -21,8 +21,8 @@ const PROMETHEUS_NAMESPACE = "hystrix_go"
 //  package main
 //
 //  import (
-//  	"github.com/afex/hystrix-go/plugins"
-//  	"github.com/afex/hystrix-go/hystrix/metric_collector"
+//  	"github.com/exaring/hystrix-go/plugins"
+//  	"github.com/exaring/hystrix-go/hystrix/metric_collector"
 //  )
 //
 //  func main() {
