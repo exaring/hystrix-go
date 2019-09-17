@@ -1,7 +1,7 @@
 package plugins
 
 import (
-	"github.com/exaring/hystrix-go/hystrix/metric_collector"
+	metricCollector "github.com/exaring/hystrix-go/hystrix/metric_collector"
 	"github.com/prometheus/client_golang/prometheus"
 )
 
@@ -13,7 +13,7 @@ const PROMETHEUS_NAMESPACE = "hystrix_go"
 // If one want to use a custom registry it can be given via the reg parameter. If reg is nil, the prometheus default
 // registry is used.
 // The RunDuration is observed via a prometheus histogram ( https://prometheus.io/docs/concepts/metric_types/#histogram ).
-// If the duration_buckets slice is nil, the "github.com/prometheus/client_golang/prometheus".DefBuckets  are used. As stated by the prometheus documentation, one should
+// If the durationBuckets slice is nil, the "github.com/prometheus/client_golang/prometheus".DefBuckets  are used. As stated by the prometheus documentation, one should
 // tailor the buckets to the response times of your application.
 //
 //
@@ -43,11 +43,11 @@ type PrometheusCollector struct {
 	runDuration       *prometheus.HistogramVec
 }
 
-func NewPrometheusCollector(reg prometheus.Registerer, duration_buckets []float64) PrometheusCollector {
-	if duration_buckets == nil {
-		duration_buckets = prometheus.DefBuckets
+func NewPrometheusCollector(durationBuckets []float64) *PrometheusCollector {
+	if durationBuckets == nil {
+		durationBuckets = prometheus.DefBuckets
 	}
-	hm := PrometheusCollector{
+	hm := &PrometheusCollector{
 		attempts: prometheus.NewCounterVec(prometheus.CounterOpts{
 			Namespace: PROMETHEUS_NAMESPACE,
 			Name:      "attempts",
@@ -102,37 +102,29 @@ func NewPrometheusCollector(reg prometheus.Registerer, duration_buckets []float6
 			Namespace: PROMETHEUS_NAMESPACE,
 			Name:      "run_duration_seconds",
 			Help:      "Runtime of the Hystrix command.",
-			Buckets:   duration_buckets,
+			Buckets:   durationBuckets,
 		}, []string{"command"}),
 	}
-	if reg != nil {
-		reg.MustRegister(
-			hm.attempts,
-			hm.errors,
-			hm.failures,
-			hm.rejects,
-			hm.shortCircuits,
-			hm.timeouts,
-			hm.fallbackSuccesses,
-			hm.fallbackFailures,
-			hm.totalDuration,
-			hm.runDuration,
-		)
-	} else {
-		prometheus.MustRegister(
-			hm.attempts,
-			hm.errors,
-			hm.failures,
-			hm.rejects,
-			hm.shortCircuits,
-			hm.timeouts,
-			hm.fallbackSuccesses,
-			hm.fallbackFailures,
-			hm.totalDuration,
-			hm.runDuration,
-		)
-	}
 	return hm
+}
+
+// Describe is part of the prometheus.Collector interface
+func (pc *PrometheusCollector) Describe(ch chan<- *prometheus.Desc) {
+	prometheus.DescribeByCollect(pc, ch)
+}
+
+// Collect is part of the prometheus.Collector interface
+func (pc *PrometheusCollector) Collect(ch chan<- prometheus.Metric) {
+	pc.attempts.Collect(ch)
+	pc.errors.Collect(ch)
+	pc.successes.Collect(ch)
+	pc.failures.Collect(ch)
+	pc.rejects.Collect(ch)
+	pc.shortCircuits.Collect(ch)
+	pc.timeouts.Collect(ch)
+	pc.fallbackSuccesses.Collect(ch)
+	pc.fallbackFailures.Collect(ch)
+	pc.totalDuration.Collect(ch)
 }
 
 type cmdCollector struct {
