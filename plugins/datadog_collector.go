@@ -1,10 +1,9 @@
 package plugins
 
 import (
-
 	// Developed on https://github.com/DataDog/datadog-go/tree/a27810dd518c69be741a7fd5d0e39f674f615be8
 	"github.com/DataDog/datadog-go/statsd"
-	"github.com/afex/hystrix-go/hystrix/metric_collector"
+	metricCollector "github.com/exaring/hystrix-go/hystrix/metric_collector"
 )
 
 // These metrics are constants because we're leveraging the Datadog tagging
@@ -75,8 +74,8 @@ type (
 //  package main
 //
 //  import (
-//  	"github.com/afex/hystrix-go/plugins"
-//  	"github.com/afex/hystrix-go/hystrix/metric_collector"
+//  	"github.com/exaring/hystrix-go/plugins"
+//  	"github.com/exaring/hystrix-go/hystrix/metric_collector"
 //  )
 //
 //  func main() {
