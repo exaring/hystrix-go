@@ -125,6 +125,7 @@ func (pc *PrometheusCollector) Collect(ch chan<- prometheus.Metric) {
 	pc.fallbackSuccesses.Collect(ch)
 	pc.fallbackFailures.Collect(ch)
 	pc.totalDuration.Collect(ch)
+	pc.runDuration.Collect(ch)
 }
 
 type cmdCollector struct {
