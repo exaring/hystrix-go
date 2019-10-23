@@ -30,11 +30,11 @@ type Settings struct {
 
 // CommandConfig is used to tune circuit settings at runtime
 type CommandConfig struct {
-	Timeout                int `json:"timeout"`
-	MaxConcurrentRequests  int `json:"max_concurrent_requests"`
-	RequestVolumeThreshold int `json:"request_volume_threshold"`
-	SleepWindow            int `json:"sleep_window"`
-	ErrorPercentThreshold  int `json:"error_percent_threshold"`
+	Timeout                int `json:"timeout" yaml:"timeout"`
+	MaxConcurrentRequests  int `json:"max_concurrent_requests" yaml:"max_concurrent_requests"`
+	RequestVolumeThreshold int `json:"request_volume_threshold" yaml:"request_volume_threshold"`
+	SleepWindow            int `json:"sleep_window" yaml:"sleep_window"`
+	ErrorPercentThreshold  int `json:"error_percent_threshold" yaml:"error_percent_threshold"`
 }
 
 var circuitSettings map[string]*Settings
