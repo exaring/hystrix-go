@@ -7,10 +7,10 @@ import (
 	"time"
 )
 
-type runFunc func() error
-type fallbackFunc func(error) error
-type runFuncC func(context.Context) error
-type fallbackFuncC func(context.Context, error) error
+type RunFunc func() error
+type FallbackFunc func(error) error
+type RunFuncC func(context.Context) error
+type FallbackFuncC func(context.Context, error) error
 
 // A CircuitError is an error which models various failure states of execution,
 // such as the circuit being open or a timeout.
@@ -32,8 +32,8 @@ type command struct {
 	errChan     chan error
 	finished    chan bool
 	circuit     *CircuitBreaker
-	run         runFuncC
-	fallback    fallbackFuncC
+	run         RunFuncC
+	fallback    FallbackFuncC
 	runDuration time.Duration
 	events      []string
 }
@@ -52,11 +52,11 @@ var (
 // new calls to it for you to give the dependent service time to repair.
 //
 // Define a fallback function if you want to define some code to execute during outages.
-func Go(name string, run runFunc, fallback fallbackFunc) chan error {
+func Go(name string, run RunFunc, fallback FallbackFunc) chan error {
 	runC := func(ctx context.Context) error {
 		return run()
 	}
-	var fallbackC fallbackFuncC
+	var fallbackC FallbackFuncC
 	if fallback != nil {
 		fallbackC = func(ctx context.Context, err error) error {
 			return fallback(err)
@@ -70,7 +70,7 @@ func Go(name string, run runFunc, fallback fallbackFunc) chan error {
 // new calls to it for you to give the dependent service time to repair.
 //
 // Define a fallback function if you want to define some code to execute during outages.
-func GoC(ctx context.Context, name string, run runFuncC, fallback fallbackFuncC) chan error {
+func GoC(ctx context.Context, name string, run RunFuncC, fallback FallbackFuncC) chan error {
 	cmd := &command{
 		run:      run,
 		fallback: fallback,
@@ -199,11 +199,11 @@ func GoC(ctx context.Context, name string, run runFuncC, fallback fallbackFuncC)
 
 // Do runs your function in a synchronous manner, blocking until either your function succeeds
 // or an error is returned, including hystrix circuit errors
-func Do(name string, run runFunc, fallback fallbackFunc) error {
+func Do(name string, run RunFunc, fallback FallbackFunc) error {
 	runC := func(ctx context.Context) error {
 		return run()
 	}
-	var fallbackC fallbackFuncC
+	var fallbackC FallbackFuncC
 	if fallback != nil {
 		fallbackC = func(ctx context.Context, err error) error {
 			return fallback(err)
@@ -214,7 +214,7 @@ func Do(name string, run runFunc, fallback fallbackFunc) error {
 
 // DoC runs your function in a synchronous manner, blocking until either your function succeeds
 // or an error is returned, including hystrix circuit errors
-func DoC(ctx context.Context, name string, run runFuncC, fallback fallbackFuncC) error {
+func DoC(ctx context.Context, name string, run RunFuncC, fallback FallbackFuncC) error {
 	done := make(chan struct{}, 1)
 
 	r := func(ctx context.Context) error {
